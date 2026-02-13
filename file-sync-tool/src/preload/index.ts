@@ -134,7 +134,21 @@ const api = {
     ipcRenderer.invoke('sync:executeAll', mappings),
 
   /** 执行单个同步映射 */
-  syncOne: (mapping: unknown): Promise<unknown> => ipcRenderer.invoke('sync:executeOne', mapping)
+  syncOne: (mapping: unknown): Promise<unknown> => ipcRenderer.invoke('sync:executeOne', mapping),
+
+  // ==================== 窗口控制 API ====================
+
+  /** 最小化窗口 */
+  windowMinimize: (): Promise<void> => ipcRenderer.invoke('window:minimize'),
+
+  /** 最大化 / 还原窗口 */
+  windowMaximize: (): Promise<boolean> => ipcRenderer.invoke('window:maximize'),
+
+  /** 关闭窗口 */
+  windowClose: (): Promise<void> => ipcRenderer.invoke('window:close'),
+
+  /** 查询是否已最大化 */
+  windowIsMaximized: (): Promise<boolean> => ipcRenderer.invoke('window:isMaximized')
 }
 
 // 将 API 暴露到渲染进程的 window.api 对象上

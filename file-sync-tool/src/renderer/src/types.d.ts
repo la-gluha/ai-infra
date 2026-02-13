@@ -86,6 +86,10 @@ interface ElectronAPI {
   gitDiff: (workDir: string) => Promise<{ success: boolean; diff?: string; error?: string }>
   syncAll: (mappings: SyncMapping[]) => Promise<{ success: boolean; results?: { id: string; success: boolean; error?: string }[] }>
   syncOne: (mapping: SyncMapping) => Promise<{ id: string; success: boolean; error?: string }>
+  windowMinimize: () => Promise<void>
+  windowMaximize: () => Promise<boolean>
+  windowClose: () => Promise<void>
+  windowIsMaximized: () => Promise<boolean>
 }
 
 // 扩展 Window 接口，声明 api 属性

@@ -2,7 +2,7 @@
  * 主进程入口文件
  * 负责创建窗口、注册IPC通信、管理应用生命周期
  */
-import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, dialog, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { registerFileHandlers } from './handlers/fileHandlers'
@@ -15,16 +15,21 @@ let mainWindow: BrowserWindow | null = null
 
 /**
  * 创建主窗口
- * 配置窗口大小、预加载脚本及加载页面
+ * 无边框窗口，由渲染进程提供自定义标题栏
  */
 function createWindow(): void {
+  // 移除默认应用菜单栏
+  Menu.setApplicationMenu(null)
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 1000,
     minHeight: 700,
     show: false,
-    title: 'FileSyncTool - 本地文件同步工具',
+    frame: false, // 无边框窗口，移除系统标题栏和菜单
+    titleBarStyle: 'hidden', // Windows 下隐藏标题栏
+    title: 'FileSyncTool',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -89,6 +94,33 @@ function registerGlobalHandlers(): void {
   ipcMain.handle('store:setSyncMappings', (_event, mappings: unknown) => {
     store.set('syncMappings', mappings)
     return true
+  })
+
+  // ==================== 窗口控制 ====================
+
+  // 最小化窗口
+  ipcMain.handle('window:minimize', () => {
+    mainWindow?.minimize()
+  })
+
+  // 最大化 / 还原窗口
+  ipcMain.handle('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow?.maximize()
+    }
+    return mainWindow?.isMaximized()
+  })
+
+  // 关闭窗口
+  ipcMain.handle('window:close', () => {
+    mainWindow?.close()
+  })
+
+  // 查询是否已最大化
+  ipcMain.handle('window:isMaximized', () => {
+    return mainWindow?.isMaximized() ?? false
   })
 }
 
