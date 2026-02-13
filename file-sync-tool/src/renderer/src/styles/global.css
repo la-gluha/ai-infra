@@ -1,0 +1,685 @@
+/**
+ * 全局样式
+ * 定义 CSS 变量、基础样式、布局等
+ */
+
+/* ==================== CSS 变量 ==================== */
+:root {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --bg-hover: #37373d;
+  --bg-active: #094771;
+  --text-primary: #cccccc;
+  --text-secondary: #999999;
+  --text-highlight: #ffffff;
+  --border-color: #3c3c3c;
+  --accent-color: #0078d4;
+  --accent-hover: #1a8adb;
+  --danger-color: #f44747;
+  --success-color: #4ec9b0;
+  --warning-color: #dcdcaa;
+  --sidebar-width: 280px;
+  --header-height: 40px;
+  --statusbar-height: 28px;
+  --panel-height: 200px;
+}
+
+/* ==================== 基础重置 ==================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+/* ==================== 滚动条样式 ==================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(121, 121, 121, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 121, 121, 0.7);
+}
+
+/* ==================== 通用按钮 ==================== */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-size: 13px;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+/* ==================== 布局 ==================== */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+.app-header {
+  height: var(--header-height);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.app-header button,
+.app-header input {
+  -webkit-app-region: no-drag;
+}
+
+.app-header .title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-right: auto;
+}
+
+.app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ==================== 侧边栏 ==================== */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: 200px;
+  max-width: 500px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.sidebar-actions button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.sidebar-actions button:hover {
+  background: var(--bg-hover);
+  color: var(--text-highlight);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* ==================== 文件树 ==================== */
+.file-tree-item {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.file-tree-item:hover {
+  background: var(--bg-hover);
+}
+
+.file-tree-item.active {
+  background: var(--bg-active);
+  color: var(--text-highlight);
+}
+
+.file-tree-item .icon {
+  margin-right: 4px;
+  font-size: 14px;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.file-tree-item .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-tree-item .arrow {
+  width: 16px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* ==================== 编辑器区域 ==================== */
+.editor-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-tabs {
+  height: 36px;
+  background: var(--bg-tertiary);
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.editor-tab {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 12px;
+  gap: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border-color);
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 13px;
+  min-width: 100px;
+  max-width: 200px;
+}
+
+.editor-tab.active {
+  background: var(--bg-primary);
+  color: var(--text-highlight);
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.editor-tab .close-btn {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.editor-tab .close-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-highlight);
+}
+
+.editor-tab .modified-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.editor-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ==================== 欢迎/空白页 ==================== */
+.welcome-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  gap: 16px;
+}
+
+.welcome-page h2 {
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--text-primary);
+}
+
+.welcome-page p {
+  font-size: 14px;
+}
+
+/* ==================== 状态栏 ==================== */
+.status-bar {
+  height: var(--statusbar-height);
+  background: var(--accent-color);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  color: #ffffff;
+  gap: 16px;
+}
+
+.status-bar .status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==================== 设置页面 ==================== */
+.setup-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+}
+
+.setup-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 48px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.setup-card h1 {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--text-highlight);
+  margin-bottom: 8px;
+}
+
+.setup-card p {
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.setup-card .dir-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.setup-card .dir-selector input {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.btn-primary {
+  height: 36px;
+  padding: 0 20px;
+  background: var(--accent-color);
+  color: #ffffff;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  height: 36px;
+  padding: 0 20px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+}
+
+.btn-danger {
+  height: 36px;
+  padding: 0 20px;
+  background: var(--danger-color);
+  color: #ffffff;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover {
+  background: #d73a3a;
+}
+
+.btn-small {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+/* ==================== 底部面板 ==================== */
+.bottom-panel {
+  height: var(--panel-height);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bottom-panel-header {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.bottom-panel-tab {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: transparent;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.bottom-panel-tab.active {
+  color: var(--text-highlight);
+  border-bottom-color: var(--accent-color);
+}
+
+.bottom-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ==================== 对话框/模态框 ==================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 400px;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-highlight);
+  margin-bottom: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* ==================== 输入框通用样式 ==================== */
+.input-field {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.input-field:focus {
+  border-color: var(--accent-color);
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+/* ==================== 同步配置页面 ==================== */
+.sync-config-panel {
+  padding: 16px;
+}
+
+.sync-mapping-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.sync-mapping-item .paths {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sync-mapping-item .path-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.sync-mapping-item .path-label {
+  color: var(--text-secondary);
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.sync-mapping-item .path-value {
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sync-mapping-item .actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ==================== 上下文菜单 ==================== */
+.context-menu {
+  position: fixed;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 0;
+  min-width: 180px;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+}
+
+.context-menu-item:hover {
+  background: var(--accent-color);
+  color: var(--text-highlight);
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+/* ==================== 切换开关 ==================== */
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-switch.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.toggle-switch .toggle-knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  transition: left 0.2s;
+}
+
+.toggle-switch.active .toggle-knob {
+  left: 17px;
+}
+
+/* ==================== 通知提示 ==================== */
+.notification {
+  position: fixed;
+  top: 50px;
+  right: 16px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  z-index: 2000;
+  animation: slideIn 0.3s ease;
+}
+
+.notification.success {
+  background: #2d4a2d;
+  border: 1px solid var(--success-color);
+  color: var(--success-color);
+}
+
+.notification.error {
+  background: #4a2d2d;
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
+}
+
+.notification.info {
+  background: #2d3a4a;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
