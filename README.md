@@ -116,6 +116,32 @@ file-sync-tool/
 | `Ctrl + Shift + Z` | 重做 |
 | `Ctrl + Enter` | 在提交对话框中快速提交 |
 
+## 常见问题
+
+### `npm run dev` 报错 `Error: Electron uninstall`
+
+该错误表示 Electron 的二进制可执行文件未成功下载。项目已通过 `.npmrc` 配置了国内镜像，请按以下步骤修复：
+
+```bash
+# 1. 清除旧的安装缓存
+rm -rf node_modules package-lock.json
+
+# 2. 重新安装（会自动使用 .npmrc 中的镜像地址）
+npm install
+
+# 3. 如果仍然失败，可单独重装 electron
+npx electron-rebuild
+# 或者
+npm install electron --save-dev
+```
+
+如果公司网络有代理，还需在 `.npmrc` 中补充代理配置：
+
+```ini
+proxy=http://your-proxy:port
+https-proxy=http://your-proxy:port
+```
+
 ## 路线图
 
 以下是计划中或可用于扩展的功能方向，欢迎贡献：
