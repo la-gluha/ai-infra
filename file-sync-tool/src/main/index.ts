@@ -68,7 +68,17 @@ function registerGlobalHandlers(): void {
   ipcMain.handle('dialog:selectDirectory', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory', 'createDirectory'],
-      title: '选择工作目录'
+      title: '选择文件夹'
+    })
+    if (result.canceled) return null
+    return result.filePaths[0]
+  })
+
+  // 选择文件对话框
+  ipcMain.handle('dialog:selectFile', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      title: '选择文件'
     })
     if (result.canceled) return null
     return result.filePaths[0]

@@ -60,6 +60,7 @@ interface GitLogEntry {
 /** 预加载脚本暴露的 API */
 interface ElectronAPI {
   selectDirectory: () => Promise<string | null>
+  selectFile: () => Promise<string | null>
   getWorkDir: () => Promise<string | null>
   setWorkDir: (dir: string) => Promise<boolean>
   getSyncMappings: () => Promise<SyncMapping[]>

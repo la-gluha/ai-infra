@@ -14,6 +14,9 @@ const api = {
   /** 打开目录选择对话框 */
   selectDirectory: (): Promise<string | null> => ipcRenderer.invoke('dialog:selectDirectory'),
 
+  /** 打开文件选择对话框 */
+  selectFile: (): Promise<string | null> => ipcRenderer.invoke('dialog:selectFile'),
+
   // ==================== 存储 API ====================
 
   /** 获取工作目录路径 */

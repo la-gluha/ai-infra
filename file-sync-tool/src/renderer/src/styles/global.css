@@ -670,50 +670,253 @@ input, select, textarea {
   margin-bottom: 4px;
 }
 
-/* ==================== 同步配置 ==================== */
-.sync-mapping-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
+/* =====================================================
+   同步配置对话框
+   ===================================================== */
 
-.sync-mapping-item .paths {
-  flex: 1;
+/* 对话框容器 */
+.sync-dialog {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 620px;
+  max-width: 90vw;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 
-.sync-mapping-item .path-row {
+.sync-dialog-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+}
+
+.sync-dialog-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-highlight);
+}
+
+.sync-close-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 4px;
+}
+
+.sync-close-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-highlight);
+}
+
+.sync-dialog-desc {
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  padding: 8px 20px 12px;
+}
+
+/* 映射列表 */
+.sync-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px;
+  min-height: 60px;
+  max-height: 300px;
+}
+
+.sync-empty {
+  padding: 28px 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+  border: 1px dashed var(--border-color);
+  border-radius: 4px;
+}
+
+/* 单条映射 */
+.sync-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  margin-bottom: 6px;
+  transition: opacity 0.15s;
+}
+
+.sync-item.disabled {
+  opacity: 0.5;
+}
+
+.sync-item-paths {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sync-item-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
 }
 
-.sync-mapping-item .path-label {
-  color: var(--text-secondary);
-  width: 32px;
+.sync-item-tag {
   flex-shrink: 0;
+  width: 20px;
+  height: 18px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
 }
 
-.sync-mapping-item .path-value {
+.sync-item-tag.source {
+  background: rgba(78, 201, 176, 0.15);
+  color: var(--success-color);
+}
+
+.sync-item-tag.target {
+  background: rgba(0, 120, 212, 0.15);
+  color: var(--accent-color);
+}
+
+.sync-item-path {
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
 }
 
-.sync-mapping-item .actions {
+.sync-item-delete {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 4px;
+}
+
+.sync-item-delete:hover {
+  background: rgba(244, 71, 71, 0.15);
+  color: var(--danger-color);
+}
+
+/* 新增映射表单 */
+.sync-add-form {
+  margin: 0 20px;
+  padding: 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--focus-border);
+  border-radius: 5px;
+}
+
+.sync-field {
+  margin-bottom: 10px;
+}
+
+.sync-field-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.sync-field-row {
   display: flex;
   gap: 4px;
+}
+
+.sync-field-input {
+  flex: 1;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.sync-field-input:focus {
+  border-color: var(--focus-border);
+}
+
+.sync-pick-btn {
   flex-shrink: 0;
+  height: 30px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.sync-pick-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-secondary);
+}
+
+.sync-add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* 底部栏 */
+.sync-dialog-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 12px;
+}
+
+.sync-add-btn {
+  height: 28px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px dashed var(--border-color);
+  border-radius: 4px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.sync-add-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 /* ==================== 上下文菜单 ==================== */
