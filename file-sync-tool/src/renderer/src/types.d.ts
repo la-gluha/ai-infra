@@ -73,6 +73,8 @@ interface ElectronAPI {
   rename: (oldPath: string, newPath: string) => Promise<{ success: boolean; error?: string }>
   exists: (targetPath: string) => Promise<boolean>
   stat: (targetPath: string) => Promise<unknown>
+  joinPath: (...segments: string[]) => Promise<string>
+  parentDir: (targetPath: string) => Promise<string>
   gitInit: (workDir: string) => Promise<{ success: boolean; isNew?: boolean; error?: string }>
   gitStatus: (workDir: string) => Promise<GitStatus>
   gitAdd: (workDir: string, files: string | string[]) => Promise<{ success: boolean; error?: string }>

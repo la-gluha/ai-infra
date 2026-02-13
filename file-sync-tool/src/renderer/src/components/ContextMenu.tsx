@@ -2,7 +2,7 @@
  * 右键上下文菜单组件
  * 在文件树中右键点击时显示操作菜单
  */
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 /** 组件属性 */
 interface ContextMenuProps {
@@ -35,9 +35,19 @@ function ContextMenu({
   onDelete,
   onRename
 }: ContextMenuProps): React.ReactElement {
-  // 如果是目录，新建操作在当前目录下
-  // 如果是文件，新建操作在其父目录下
-  const parentPath = node.isDirectory ? node.path : node.path.substring(0, node.path.lastIndexOf('/'))
+  /** 计算出的父目录路径 */
+  const [parentPath, setParentPath] = useState(node.path)
+
+  // 异步获取正确的父目录路径（跨平台兼容）
+  useEffect(() => {
+    if (node.isDirectory) {
+      // 目录本身即为父路径
+      setParentPath(node.path)
+    } else {
+      // 文件需要获取其所在目录
+      window.api.parentDir(node.path).then(setParentPath)
+    }
+  }, [node])
 
   return (
     <div className="context-menu" style={{ left: x, top: y }}>
@@ -45,10 +55,10 @@ function ContextMenu({
       {node.isDirectory && (
         <>
           <button className="context-menu-item" onClick={() => onCreateFile(parentPath)}>
-            📄 新建文件
+            + 新建文件
           </button>
           <button className="context-menu-item" onClick={() => onCreateDir(parentPath)}>
-            📁 新建文件夹
+            + 新建文件夹
           </button>
           <div className="context-menu-divider" />
         </>
@@ -56,10 +66,10 @@ function ContextMenu({
 
       {/* 通用操作 */}
       <button className="context-menu-item" onClick={() => onRename(node.path, node.name)}>
-        ✏️ 重命名
+        重命名
       </button>
       <button className="context-menu-item" onClick={() => onDelete(node.path, node.name)}>
-        🗑️ 删除
+        删除
       </button>
     </div>
   )

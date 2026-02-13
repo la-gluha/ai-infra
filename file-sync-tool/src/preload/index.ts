@@ -70,6 +70,14 @@ const api = {
   /** 获取文件/目录信息 */
   stat: (targetPath: string): Promise<unknown> => ipcRenderer.invoke('fs:stat', targetPath),
 
+  /** 拼接路径（跨平台兼容） */
+  joinPath: (...segments: string[]): Promise<string> =>
+    ipcRenderer.invoke('fs:joinPath', ...segments),
+
+  /** 获取父目录路径 */
+  parentDir: (targetPath: string): Promise<string> =>
+    ipcRenderer.invoke('fs:parentDir', targetPath),
+
   // ==================== Git API ====================
 
   /** 初始化 Git 仓库 */

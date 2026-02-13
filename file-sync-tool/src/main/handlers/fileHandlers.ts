@@ -162,6 +162,16 @@ export function registerFileHandlers(): void {
     return fs.existsSync(targetPath)
   })
 
+  // 拼接路径（跨平台兼容）
+  ipcMain.handle('fs:joinPath', (_event, ...segments: string[]) => {
+    return path.join(...segments)
+  })
+
+  // 获取父目录路径
+  ipcMain.handle('fs:parentDir', (_event, targetPath: string) => {
+    return path.dirname(targetPath)
+  })
+
   // 获取文件/目录信息
   ipcMain.handle('fs:stat', (_event, targetPath: string) => {
     try {

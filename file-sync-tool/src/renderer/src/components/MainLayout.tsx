@@ -271,7 +271,8 @@ function MainLayout({
       const name = prompt('请输入文件名:')
       if (!name) return
 
-      const filePath = `${parentPath}/${name}`
+      // 使用主进程的 path.join 拼接路径（跨平台兼容）
+      const filePath = await window.api.joinPath(parentPath, name)
       const result = await window.api.createFile(filePath)
       if (result.success) {
         showNotification('文件已创建', 'success')
@@ -291,7 +292,8 @@ function MainLayout({
       const name = prompt('请输入文件夹名:')
       if (!name) return
 
-      const dirPath = `${parentPath}/${name}`
+      // 使用主进程的 path.join 拼接路径（跨平台兼容）
+      const dirPath = await window.api.joinPath(parentPath, name)
       const result = await window.api.createDir(dirPath)
       if (result.success) {
         showNotification('文件夹已创建', 'success')
@@ -332,8 +334,9 @@ function MainLayout({
       const newName = prompt('请输入新名称:', oldName)
       if (!newName || newName === oldName) return
 
-      const parentDir = oldPath.substring(0, oldPath.lastIndexOf('/'))
-      const newPath = `${parentDir}/${newName}`
+      // 使用主进程获取父目录并拼接新路径
+      const parentDirPath = await window.api.parentDir(oldPath)
+      const newPath = await window.api.joinPath(parentDirPath, newName)
 
       const result = await window.api.rename(oldPath, newPath)
       if (result.success) {
