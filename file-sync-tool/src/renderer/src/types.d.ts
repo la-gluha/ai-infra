@@ -61,6 +61,8 @@ interface GitLogEntry {
 interface ElectronAPI {
   selectDirectory: () => Promise<string | null>
   selectFile: () => Promise<string | null>
+  selectFileIn: (baseDir: string) => Promise<string | { error: string } | null>
+  selectDirIn: (baseDir: string) => Promise<string | { error: string } | null>
   getWorkDir: () => Promise<string | null>
   setWorkDir: (dir: string) => Promise<boolean>
   getSyncMappings: () => Promise<SyncMapping[]>

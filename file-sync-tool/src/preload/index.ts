@@ -11,11 +11,19 @@ import { contextBridge, ipcRenderer } from 'electron'
 const api = {
   // ==================== 对话框 API ====================
 
-  /** 打开目录选择对话框 */
+  /** 打开目录选择对话框（不限路径） */
   selectDirectory: (): Promise<string | null> => ipcRenderer.invoke('dialog:selectDirectory'),
 
-  /** 打开文件选择对话框 */
+  /** 打开文件选择对话框（不限路径） */
   selectFile: (): Promise<string | null> => ipcRenderer.invoke('dialog:selectFile'),
+
+  /** 在指定目录内选择文件（限制在 baseDir 下） */
+  selectFileIn: (baseDir: string): Promise<string | { error: string } | null> =>
+    ipcRenderer.invoke('dialog:selectFileIn', baseDir),
+
+  /** 在指定目录内选择文件夹（限制在 baseDir 下） */
+  selectDirIn: (baseDir: string): Promise<string | { error: string } | null> =>
+    ipcRenderer.invoke('dialog:selectDirIn', baseDir),
 
   // ==================== 存储 API ====================
 

@@ -21,7 +21,7 @@ interface SyncMapping {
 }
 
 /**
- * 递归复制目录
+ * 递归复制目录内容
  * @param src - 源目录路径
  * @param dest - 目标目录路径
  */
@@ -40,7 +40,7 @@ function copyDirSync(src: string, dest: string): void {
       // 递归复制子目录
       copyDirSync(srcPath, destPath)
     } else {
-      // 复制文件
+      // 复制文件（覆盖已有）
       fs.copyFileSync(srcPath, destPath)
     }
   }
@@ -48,31 +48,46 @@ function copyDirSync(src: string, dest: string): void {
 
 /**
  * 执行单个同步映射
+ * 处理四种组合：文件→文件、文件→目录、目录→目录、目录→不存在路径
  * @param mapping - 同步映射配置
- * @returns 同步结果
+ * @returns 同步结果，包含复制的文件数量
  */
-function executeSyncMapping(mapping: SyncMapping): { success: boolean; error?: string } {
+function executeSyncMapping(mapping: SyncMapping): { success: boolean; error?: string; detail?: string } {
   try {
+    const sourcePath = path.resolve(mapping.source)
+    const targetPath = path.resolve(mapping.target)
+
     // 校验源路径是否存在
-    if (!fs.existsSync(mapping.source)) {
-      return { success: false, error: `源路径不存在: ${mapping.source}` }
+    if (!fs.existsSync(sourcePath)) {
+      return { success: false, error: `源路径不存在: ${sourcePath}` }
     }
 
-    const stat = fs.statSync(mapping.source)
+    const sourceStat = fs.statSync(sourcePath)
 
-    if (stat.isDirectory()) {
-      // 目录同步：递归复制整个目录
-      copyDirSync(mapping.source, mapping.target)
+    if (sourceStat.isDirectory()) {
+      // 源是目录 → 将目录内容递归复制到目标目录
+      copyDirSync(sourcePath, targetPath)
+      return { success: true, detail: `目录已同步: ${sourcePath} → ${targetPath}` }
     } else {
-      // 文件同步：确保目标目录存在后复制文件
-      const targetDir = path.dirname(mapping.target)
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true })
-      }
-      fs.copyFileSync(mapping.source, mapping.target)
-    }
+      // 源是文件
+      let finalTarget = targetPath
 
-    return { success: true }
+      // 如果目标路径已经是一个存在的目录，则将文件复制到该目录内（保留原文件名）
+      if (fs.existsSync(targetPath) && fs.statSync(targetPath).isDirectory()) {
+        finalTarget = path.join(targetPath, path.basename(sourcePath))
+      } else {
+        // 目标路径不存在或是一个文件 → 确保父目录存在
+        const targetDir = path.dirname(finalTarget)
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true })
+        }
+      }
+
+      // 读取源文件内容并写入目标（确保完整覆盖）
+      const content = fs.readFileSync(sourcePath)
+      fs.writeFileSync(finalTarget, content)
+      return { success: true, detail: `文件已同步: ${sourcePath} → ${finalTarget}` }
+    }
   } catch (error) {
     return { success: false, error: String(error) }
   }
@@ -84,7 +99,7 @@ function executeSyncMapping(mapping: SyncMapping): { success: boolean; error?: s
 export function registerSyncHandlers(): void {
   // 执行所有同步映射
   ipcMain.handle('sync:executeAll', async (_event, mappings: SyncMapping[]) => {
-    const results: { id: string; success: boolean; error?: string }[] = []
+    const results: { id: string; success: boolean; error?: string; detail?: string }[] = []
 
     for (const mapping of mappings) {
       // 仅执行已启用的映射
@@ -93,7 +108,10 @@ export function registerSyncHandlers(): void {
       results.push({ id: mapping.id, ...result })
     }
 
-    return { success: true, results }
+    // 计算总体结果
+    const executed = results.length
+    const failed = results.filter((r) => !r.success).length
+    return { success: true, results, executed, failed }
   })
 
   // 执行单个同步映射

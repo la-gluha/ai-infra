@@ -64,7 +64,7 @@ function createWindow(): void {
 function registerGlobalHandlers(): void {
   const store = getStore()
 
-  // 选择目录对话框
+  // 选择目录对话框（不限路径）
   ipcMain.handle('dialog:selectDirectory', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory', 'createDirectory'],
@@ -74,7 +74,7 @@ function registerGlobalHandlers(): void {
     return result.filePaths[0]
   })
 
-  // 选择文件对话框
+  // 选择文件对话框（不限路径）
   ipcMain.handle('dialog:selectFile', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
@@ -82,6 +82,43 @@ function registerGlobalHandlers(): void {
     })
     if (result.canceled) return null
     return result.filePaths[0]
+  })
+
+  // 在指定目录内选择文件（源路径专用，限制在工作目录内）
+  ipcMain.handle('dialog:selectFileIn', async (_event, baseDir: string) => {
+    const result = await dialog.showOpenDialog({
+      defaultPath: baseDir,
+      properties: ['openFile'],
+      title: '选择文件（仅限工作目录内）'
+    })
+    if (result.canceled) return null
+    const selected = result.filePaths[0]
+    // 校验选择的路径在基础目录内
+    const { resolve, normalize } = require('path')
+    const normalBase = normalize(resolve(baseDir)) + require('path').sep
+    const normalSelected = normalize(resolve(selected))
+    if (!normalSelected.startsWith(normalBase) && normalSelected !== normalize(resolve(baseDir))) {
+      return { error: '所选文件不在工作目录内' }
+    }
+    return selected
+  })
+
+  // 在指定目录内选择文件夹（源路径专用，限制在工作目录内）
+  ipcMain.handle('dialog:selectDirIn', async (_event, baseDir: string) => {
+    const result = await dialog.showOpenDialog({
+      defaultPath: baseDir,
+      properties: ['openDirectory'],
+      title: '选择文件夹（仅限工作目录内）'
+    })
+    if (result.canceled) return null
+    const selected = result.filePaths[0]
+    const { resolve, normalize, sep } = require('path')
+    const normalBase = normalize(resolve(baseDir)) + sep
+    const normalSelected = normalize(resolve(selected))
+    if (!normalSelected.startsWith(normalBase) && normalSelected !== normalize(resolve(baseDir))) {
+      return { error: '所选文件夹不在工作目录内' }
+    }
+    return selected
   })
 
   // 获取工作目录

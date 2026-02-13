@@ -269,24 +269,37 @@ function MainLayout({
 
   /**
    * 执行文件同步
+   * 同步前自动保存所有编辑器中已修改的文件到磁盘
    */
   const handleSync = useCallback(async () => {
     if (syncMappings.length === 0) {
       showNotification('未配置同步映射', 'info')
       return
     }
+
+    // 先将编辑器中所有已修改文件写入磁盘，确保同步读到最新内容
+    for (const tab of openTabs) {
+      if (tab.modified) {
+        await window.api.writeFile(tab.path, tab.content)
+      }
+    }
+    setOpenTabs((prev) => prev.map((t) => ({ ...t, modified: false })))
+
+    // 执行同步
     const result = await window.api.syncAll(syncMappings)
     if (result.success && result.results) {
-      const failed = result.results.filter((r) => !r.success)
+      const failed = result.results.filter((r: { success: boolean }) => !r.success)
       if (failed.length === 0) {
-        showNotification('同步完成', 'success')
+        const count = result.results.length
+        showNotification(`同步完成，已同步 ${count} 项`, 'success')
       } else {
-        showNotification(`同步部分失败: ${failed.length} 项`, 'error')
+        const errors = failed.map((r: { error?: string }) => r.error).join('; ')
+        showNotification(`同步部分失败: ${errors}`, 'error')
       }
     } else {
       showNotification('同步执行失败', 'error')
     }
-  }, [syncMappings, showNotification])
+  }, [syncMappings, openTabs, showNotification])
 
   // ==================== 文件树操作（使用自定义对话框） ====================
 

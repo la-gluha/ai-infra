@@ -17,19 +17,83 @@ interface SyncConfigDialogProps {
 }
 
 /**
- * 路径选择器子组件
- * 提供输入框 + 选择文件 + 选择文件夹三个操作
+ * 源路径选择器子组件（限制在工作目录内）
+ * 选择对话框默认打开工作目录，且校验选择结果在工作目录下
  */
-function PathPicker({
-  label,
+function SourcePathPicker({
   value,
   onChange,
-  placeholder
+  workDir,
+  onError
 }: {
-  label: string
   value: string
   onChange: (v: string) => void
-  placeholder: string
+  workDir: string
+  onError: (msg: string) => void
+}): React.ReactElement {
+  /**
+   * 在工作目录内选择文件
+   */
+  const handleSelectFile = useCallback(async () => {
+    const result = await window.api.selectFileIn(workDir)
+    if (!result) return
+    if (typeof result === 'object' && 'error' in result) {
+      onError(result.error)
+      return
+    }
+    onChange(result)
+  }, [onChange, workDir, onError])
+
+  /**
+   * 在工作目录内选择文件夹
+   */
+  const handleSelectDir = useCallback(async () => {
+    const result = await window.api.selectDirIn(workDir)
+    if (!result) return
+    if (typeof result === 'object' && 'error' in result) {
+      onError(result.error)
+      return
+    }
+    onChange(result)
+  }, [onChange, workDir, onError])
+
+  return (
+    <div className="sync-field">
+      <label className="sync-field-label">源路径 <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>（仅限工作目录内）</span></label>
+      <div className="sync-field-row">
+        <input
+          className="sync-field-input"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="在工作目录内选择文件或文件夹..."
+          readOnly
+        />
+        <button className="sync-pick-btn" onClick={handleSelectFile} title="选择文件">
+          <svg width="14" height="14" viewBox="0 0 16 16">
+            <path d="M9.5 1.1l3.4 3.4.1.6V14c0 .6-.4 1-1 1H4c-.6 0-1-.4-1-1V2c0-.6.4-1 1-1h5.1l.4.1zM9 2H4v12h8V6H9V2z" fill="currentColor" opacity="0.85"/>
+          </svg>
+          <span>文件</span>
+        </button>
+        <button className="sync-pick-btn" onClick={handleSelectDir} title="选择文件夹">
+          <svg width="14" height="14" viewBox="0 0 16 16">
+            <path d="M14 4H9.618l-1-2H2a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1z" fill="currentColor"/>
+          </svg>
+          <span>文件夹</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * 目标路径选择器子组件（不限路径，可选任意位置）
+ */
+function TargetPathPicker({
+  value,
+  onChange
+}: {
+  value: string
+  onChange: (v: string) => void
 }): React.ReactElement {
   /**
    * 选择文件
@@ -49,13 +113,13 @@ function PathPicker({
 
   return (
     <div className="sync-field">
-      <label className="sync-field-label">{label}</label>
+      <label className="sync-field-label">目标路径</label>
       <div className="sync-field-row">
         <input
           className="sync-field-input"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+          placeholder="选择同步到的目标位置..."
         />
         <button className="sync-pick-btn" onClick={handleSelectFile} title="选择文件">
           <svg width="14" height="14" viewBox="0 0 16 16">
@@ -92,12 +156,15 @@ function SyncConfigDialog({
   const [newSource, setNewSource] = useState('')
   /** 新映射的目标路径 */
   const [newTarget, setNewTarget] = useState('')
+  /** 错误提示信息 */
+  const [errorMsg, setErrorMsg] = useState('')
 
   /**
    * 添加新的同步映射
    */
   const handleAdd = useCallback(() => {
     if (!newSource.trim() || !newTarget.trim()) return
+    setErrorMsg('')
     const newMapping: SyncMapping = {
       id: Date.now().toString(),
       source: newSource.trim(),
@@ -133,6 +200,15 @@ function SyncConfigDialog({
     onSave(localMappings)
     onClose()
   }, [localMappings, onSave, onClose])
+
+  /**
+   * 处理源路径选择器的错误
+   */
+  const handleSourceError = useCallback((msg: string) => {
+    setErrorMsg(msg)
+    // 3秒后自动清除
+    setTimeout(() => setErrorMsg(''), 3000)
+  }, [])
 
   /** 新增表单是否可提交 */
   const canAdd = newSource.trim() && newTarget.trim()
@@ -201,23 +277,28 @@ function SyncConfigDialog({
           ))}
         </div>
 
+        {/* 错误提示 */}
+        {errorMsg && (
+          <div style={{ margin: '0 20px 8px', padding: '6px 10px', background: 'rgba(244,71,71,0.1)', border: '1px solid var(--danger-color)', borderRadius: '4px', fontSize: '12px', color: 'var(--danger-color)' }}>
+            {errorMsg}
+          </div>
+        )}
+
         {/* 新增映射表单 */}
         {adding && (
           <div className="sync-add-form">
-            <PathPicker
-              label="源路径"
+            <SourcePathPicker
               value={newSource}
               onChange={setNewSource}
-              placeholder="选择要同步的文件或文件夹..."
+              workDir={workDir}
+              onError={handleSourceError}
             />
-            <PathPicker
-              label="目标路径"
+            <TargetPathPicker
               value={newTarget}
               onChange={setNewTarget}
-              placeholder="选择同步到的目标位置..."
             />
             <div className="sync-add-actions">
-              <button className="btn-secondary btn-small" onClick={() => { setAdding(false); setNewSource(''); setNewTarget('') }}>
+              <button className="btn-secondary btn-small" onClick={() => { setAdding(false); setNewSource(''); setNewTarget(''); setErrorMsg('') }}>
                 取消
               </button>
               <button
